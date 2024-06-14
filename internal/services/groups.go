@@ -7,7 +7,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateGroup(group *models.Group) (*models.Group, error) {
+type Groups struct{}
+
+func (s *Groups) GetById(id uuid.UUID) (*models.Group, error) {
+	return DB.GetById[models.Group](DB.GROUPS_TABLE, id)
+}
+
+func (s *Groups) Create(group *models.Group) (*models.Group, error) {
 	group.ID = uuid.New()
 	db := DB.GetDB()
 	_, err := db.Insert(DB.GROUPS_TABLE).Rows(group).Executor().Exec()
@@ -16,7 +22,7 @@ func CreateGroup(group *models.Group) (*models.Group, error) {
 	}
 	resGroup := models.Group{}
 
-	_, err = db.From(DB.GROUPS_TABLE).Where(goqu.C("id").Eq(group.ID)).ScanStruct(&resGroup)
+	_, err = s.GetById(group.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +31,7 @@ func CreateGroup(group *models.Group) (*models.Group, error) {
 }
 
 // TODO: add pagination
-func ListGroups() (*[]models.Group, error) {
+func (s *Groups) List() (*[]models.Group, error) {
 	db := DB.GetDB()
 	groups := make([]models.Group, 0)
 	err := db.From(DB.GROUPS_TABLE).ScanStructs(&groups)
@@ -35,27 +41,16 @@ func ListGroups() (*[]models.Group, error) {
 	return &groups, nil
 }
 
-func GetGroupById(id uuid.UUID) (*models.Group, error) {
-	db := DB.GetDB()
-	group := models.Group{}
-
-	_, err := db.From(DB.GROUPS_TABLE).Where(goqu.C("id").Eq(id)).ScanStruct(&group)
-	if err != nil {
-		return nil, err
-	}
-	return &group, nil
-}
-
-func UpdateGroup(id uuid.UUID, group models.WriteGroup) (*models.Group, error) {
+func (s *Groups) Update(id uuid.UUID, group models.WriteGroup) (*models.Group, error) {
 	db := DB.GetDB()
 	_, err := db.Update(DB.GROUPS_TABLE).Where(goqu.C("id").Eq(id)).Set(group).Executor().Exec()
 	if err != nil {
 		return nil, err
 	}
-	return GetGroupById(id)
+	return s.GetById(id)
 }
 
-func DeleteGroup(id uuid.UUID) (uuid.UUID, error) {
+func (s *Groups) Delete(id uuid.UUID) (uuid.UUID, error) {
 	db := DB.GetDB()
 	_, err := db.Delete(DB.GROUPS_TABLE).Where(goqu.C("id").Eq(id)).Executor().Exec()
 	if err != nil {

@@ -10,7 +10,9 @@ import (
 	"github.com/google/uuid"
 )
 
-type Groups struct{}
+type Groups struct {
+	service *services.Groups
+}
 
 func (h *Groups) Create(c *gin.Context) {
 	group := &models.Group{}
@@ -21,7 +23,7 @@ func (h *Groups) Create(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	group, err = services.CreateGroup(group)
+	group, err = h.service.Create(group)
 	if err != nil {
 		slog.Error(err.Error())
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -32,7 +34,7 @@ func (h *Groups) Create(c *gin.Context) {
 }
 
 func (h *Groups) List(c *gin.Context) {
-	groups, err := services.ListGroups()
+	groups, err := h.service.List()
 	if err != nil {
 		slog.Error(err.Error())
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -55,7 +57,7 @@ func (h *Groups) Update(c *gin.Context) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	group, err := services.UpdateGroup(id, updGroup)
+	group, err := h.service.Update(id, updGroup)
 	if err != nil {
 		slog.Error(err.Error())
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -70,7 +72,7 @@ func (h *Groups) Delete(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	id, err = services.DeleteGroup(id)
+	id, err = h.service.Delete(id)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
