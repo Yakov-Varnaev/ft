@@ -29,6 +29,7 @@ func main() {
 		categoryHandler := new(handlers.Categories)
 		categoryRouter.GET("/", categoryHandler.List)
 		categoryRouter.POST("/", categoryHandler.Create)
+		categoryRouter.PUT("/:id/", categoryHandler.Update)
 	}
 
 	if err := router.Run(); err != nil {

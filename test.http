@@ -1,21 +1,29 @@
 GET http://localhost:8080/api/v1/groups/
 
 
-PUT http://localhost:8080/api/v1/groups/86166f43-c889-42ee-8545-3423c18ae797/
+PUT http://localhost:8080/api/v1/groups/b0e8a2ef-ee20-427d-ae5e-077679f3b18b/
 {
-  "name": "Food"
+  "name": "Regular"
 }
 
 
-DELETE http://localhost:8080/api/v1/groups/86166f43-c889-42ee-8545-3423c18ae797/
+# DELETE http://localhost:8080/api/v1/groups/86166f43-c889-42ee-8545-3423c18ae797/
 
+
+# categories
 
 POST http://localhost:8080/api/v1/categories/
 {
-  "name": "New Category",
-  "group": "86166f43-c889-42ee-8545-3423c18ae797"
+  "name": "New Categoryyyy",
+  "group": "b0e8a2ef-ee20-427d-ae5e-077679f3b18c"
 }
 
 
 GET http://localhost:8080/api/v1/categories/
+
+PUT http://localhost:8080/api/v1/categories/6bc5abfd-866c-49f5-9483-1d2c837f167a/
+{
+  "name": "Homee",
+  "group": "b0e8a2ef-ee20-427d-ae5e-077679f3b18b"
+}
 

@@ -8,6 +8,7 @@ import (
 	"github.com/Yakov-Varnaev/ft/internal/services"
 	"github.com/Yakov-Varnaev/ft/internal/web"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type Categories struct {
@@ -61,4 +62,25 @@ func (h *Categories) List(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, categories)
+}
+
+func (h *Categories) Update(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	data := &models.WriteCategory{}
+	err = c.ShouldBindJSON(data)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	category, err := h.service.Update(id, data)
+	if err != nil {
+		web.ResponseError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, category)
 }

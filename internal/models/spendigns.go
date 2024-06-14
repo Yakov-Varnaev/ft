@@ -12,19 +12,19 @@ type WriteGroup struct {
 }
 
 type Group struct {
-	ID   uuid.UUID `json:"id,omitempty"`
-	Name string    `json:"name"`
+	ID   uuid.UUID `json:"id,omitempty" db:"id"`
+	Name string    `json:"name,omitempty" db:"name"`
 }
 
 type WriteCategory struct {
-	Name  string `json:"name,omitempty" sql:"name"`
-	Group string `json:"group,omitempty" sql:"group_id"`
+	Name  string `json:"name,omitempty" db:"name"`
+	Group string `json:"group,omitempty" db:"group_id"`
 }
 
 type Category struct {
-	ID    uuid.UUID `db:"id"`
-	Name  string    `db:"name"`
-	Group uuid.UUID `db:"group_id"`
+	ID    uuid.UUID `db:"id" json:"id,omitempty"`
+	Name  string    `db:"name" json:"name,omitempty"`
+	Group string    `db:"group_id" json:"group,omitempty"`
 }
 
 type Spendings struct {
@@ -36,9 +36,9 @@ type Spendings struct {
 }
 
 type DetailedCategory struct {
-	ID    uuid.UUID
-	Name  string
-	Group Group
+	ID    uuid.UUID `db:"id" json:"id,omitempty"`
+	Name  string    `db:"name" json:"name,omitempty"`
+	Group Group     `db:"group" json:"group,omitempty"`
 }
 
 type DetailedSpendings struct {
