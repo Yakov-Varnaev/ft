@@ -32,22 +32,15 @@ func (s *Groups) Create(group *models.Group) (*models.Group, error) {
 
 // TODO: add pagination
 func (s *Groups) List() (*[]models.Group, error) {
-	db := DB.GetDB()
-	groups := make([]models.Group, 0)
-	err := db.From(DB.GROUPS_TABLE).ScanStructs(&groups)
+	groups, err := DB.List[models.Group](DB.CATEGORY_TABLE, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &groups, nil
+	return groups, nil
 }
 
 func (s *Groups) Update(id uuid.UUID, group models.WriteGroup) (*models.Group, error) {
-	db := DB.GetDB()
-	_, err := db.Update(DB.GROUPS_TABLE).Where(goqu.C("id").Eq(id)).Set(group).Executor().Exec()
-	if err != nil {
-		return nil, err
-	}
-	return s.GetById(id)
+	return DB.Update[models.WriteGroup, models.Group](DB.GROUPS_TABLE, id, &group)
 }
 
 func (s *Groups) Delete(id uuid.UUID) (uuid.UUID, error) {

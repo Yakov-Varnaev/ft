@@ -68,22 +68,27 @@ func (s *Categories) Create(data *models.WriteCategory) (*models.Category, error
 	return category, nil
 }
 
-func (s *Categories) List() (*[]models.DetailedCategory, error) {
-	categories := make([]models.DetailedCategory, 0)
-	err := DB.GetDB().From(DB.CATEGORY_TABLE).
+type listQueryProcessor struct{}
+
+func (p *listQueryProcessor) Process(query *goqu.SelectDataset) *goqu.SelectDataset {
+	return query.
 		Select(
 			goqu.I("categories.id").As(goqu.C("id")),
 			goqu.I("categories.name").As(goqu.C("name")),
 			goqu.I("group.id").As(goqu.C("group.id")),
 			goqu.I("group.name").As(goqu.C("group.name")),
 		).
-		Join(goqu.T(DB.GROUPS_TABLE).As("group"), goqu.On(goqu.I("group_id").Eq(goqu.C("group.id")))).
-		ScanStructs(&categories)
+		Join(goqu.T(DB.GROUPS_TABLE).As("group"), goqu.On(goqu.I("group_id").Eq(goqu.C("group.id"))))
+
+}
+
+func (s *Categories) List() (*[]models.DetailedCategory, error) {
+	categories, err := DB.List[models.DetailedCategory](DB.CATEGORY_TABLE, &listQueryProcessor{})
 	if err != nil {
 		slog.Error(err.Error())
 		return nil, &web.InternalServerError{Message: err.Error()}
 	}
-	return &categories, nil
+	return categories, nil
 }
 
 func (s *Categories) Update(id uuid.UUID, data *models.WriteCategory) (*models.Category, error) {
@@ -108,20 +113,9 @@ func (s *Categories) Update(id uuid.UUID, data *models.WriteCategory) (*models.C
 	}
 	slog.Info("Group is Valid")
 
-	_, err = DB.GetDB().Update(DB.CATEGORY_TABLE).Set(data).Where(goqu.C("id").Eq(id)).Executor().Exec()
-	if err != nil {
-		return nil, &web.InternalServerError{Message: err.Error()}
-	}
-	slog.Info("Category updated successfully.")
-
-	updatedCategory, err := getCategoryById(id)
-	if err != nil {
-		return nil, &web.InternalServerError{Message: err.Error()}
-	}
-	if updatedCategory == nil {
-		panic("this shouldn't be right")
-	}
-	slog.Info("Return updated category")
+	updatedCategory, err := DB.Update[models.WriteCategory, models.Category](
+		DB.CATEGORY_TABLE, id, data,
+	)
 
 	return updatedCategory, nil
 }

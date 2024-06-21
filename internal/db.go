@@ -35,6 +35,21 @@ func GetDB() *goqu.Database {
 }
 
 type DBObject interface{}
+type WriteDBObject interface{}
+
+type QueryProcessor interface {
+	Process(query *goqu.SelectDataset) *goqu.SelectDataset
+}
+
+func Create[WriteData WriteDBObject, ReturnItem DBObject](table string, data *WriteData) (*ReturnItem, error) {
+	var item ReturnItem
+	_, err := db.Insert(table).Rows(data).Returning(&item).Executor().Exec()
+
+	if err != nil {
+		return nil, err
+	}
+	return &item, nil
+}
 
 func GetById[ReturnItem DBObject](table string, id uuid.UUID) (*ReturnItem, error) {
 	if db == nil {
@@ -50,4 +65,32 @@ func GetById[ReturnItem DBObject](table string, id uuid.UUID) (*ReturnItem, erro
 		return nil, nil
 	}
 	return &item, nil
+}
+
+func List[ReturnItem DBObject](table string, processor QueryProcessor) (
+	*[]ReturnItem, error,
+) {
+	items := []ReturnItem{}
+	query := db.From(table)
+	if processor != nil {
+		query = processor.Process(query)
+	}
+
+	err := query.ScanStructs(&items)
+	if err != nil {
+		return nil, err
+	}
+	return &items, nil
+}
+
+func Update[WriteData WriteDBObject, ReturnItem DBObject](table string, id uuid.UUID, data *WriteData) (*ReturnItem, error) {
+	_, err := db.Update(table).Where(goqu.C("id").Eq(id)).Set(&data).Executor().Exec()
+	if err != nil {
+		return nil, err
+	}
+	item, err := GetById[ReturnItem](table, id)
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
 }
