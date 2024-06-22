@@ -17,19 +17,26 @@ func main() {
 	apiRouter := router.Group("/api")
 	v1 := apiRouter.Group("/v1")
 	{
-		groupRouter := v1.Group("/groups")
 		groupHandler := new(handlers.Groups)
+		groupRouter := v1.Group("/groups")
 		groupRouter.POST("/", groupHandler.Create)
 		groupRouter.GET("/", groupHandler.List)
 		groupRouter.PUT("/:id/", groupHandler.Update)
 		groupRouter.DELETE("/:id/", groupHandler.Delete)
 	}
 	{
-		categoryRouter := v1.Group("/categories")
 		categoryHandler := new(handlers.Categories)
+		categoryRouter := v1.Group("/categories")
 		categoryRouter.GET("/", categoryHandler.List)
 		categoryRouter.POST("/", categoryHandler.Create)
 		categoryRouter.PUT("/:id/", categoryHandler.Update)
+	}
+	{
+		spendingsHandler := new(handlers.Spendings)
+		spendingsRouter := v1.Group("/spendings")
+		spendingsRouter.POST("/", spendingsHandler.Create)
+		spendingsRouter.GET("/", spendingsHandler.List)
+		spendingsRouter.DELETE("/:id/", spendingsHandler.Delete)
 	}
 
 	if err := router.Run(); err != nil {

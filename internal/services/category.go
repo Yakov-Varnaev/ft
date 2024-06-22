@@ -12,7 +12,7 @@ import (
 )
 
 func getCategoryById(id uuid.UUID) (*models.Category, error) {
-	return DB.GetById[models.Category](DB.CATEGORY_TABLE, id)
+	return DB.GetById[models.Category](DB.CATEGORY_TABLE, id, nil)
 }
 
 // TODO: use Categories.DB instead of GetDB

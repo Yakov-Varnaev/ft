@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log/slog"
 
 	"github.com/doug-martin/goqu/v9"
@@ -43,7 +44,7 @@ type QueryProcessor interface {
 
 func Create[WriteData WriteDBObject, ReturnItem DBObject](table string, data *WriteData) (*ReturnItem, error) {
 	var item ReturnItem
-	_, err := db.Insert(table).Rows(data).Returning(&item).Executor().Exec()
+	_, err := db.Insert(table).Rows(data).Executor().Exec()
 
 	if err != nil {
 		return nil, err
@@ -51,12 +52,16 @@ func Create[WriteData WriteDBObject, ReturnItem DBObject](table string, data *Wr
 	return &item, nil
 }
 
-func GetById[ReturnItem DBObject](table string, id uuid.UUID) (*ReturnItem, error) {
+func GetById[ReturnItem DBObject](table string, id uuid.UUID, p QueryProcessor) (*ReturnItem, error) {
 	if db == nil {
 		panic("Database connection was not initialized yet.")
 	}
 	var item ReturnItem
-	found, err := db.From(table).Where(goqu.C("id").Eq(id)).ScanStruct(&item)
+	query := db.From(table).Where(goqu.I(table + "." + "id").Eq(id))
+	if p != nil {
+		query = p.Process(query)
+	}
+	found, err := query.ScanStruct(&item)
 	if err != nil {
 		return nil, err
 	}
@@ -65,6 +70,17 @@ func GetById[ReturnItem DBObject](table string, id uuid.UUID) (*ReturnItem, erro
 		return nil, nil
 	}
 	return &item, nil
+}
+
+func DeleteById(table string, id uuid.UUID) (*uuid.UUID, error) {
+	if db == nil {
+		panic("db is fucked")
+	}
+	_, err := db.Delete(table).Where(goqu.C("id").Eq(id)).Executor().Exec()
+	if err != nil {
+		return nil, err
+	}
+	return &id, nil
 }
 
 func List[ReturnItem DBObject](table string, processor QueryProcessor) (
@@ -88,9 +104,18 @@ func Update[WriteData WriteDBObject, ReturnItem DBObject](table string, id uuid.
 	if err != nil {
 		return nil, err
 	}
-	item, err := GetById[ReturnItem](table, id)
+	item, err := GetById[ReturnItem](table, id, nil)
 	if err != nil {
 		return nil, err
 	}
 	return item, nil
+}
+
+func Exists(table string, p QueryProcessor) (bool, error) {
+	var id string
+	query := p.Process(db.From(table).Select(goqu.C("id")).Limit(1))
+	s, _, _ := query.ToSQL()
+	fmt.Println(s)
+	found, err := query.ScanVal(&id)
+	return found, err
 }

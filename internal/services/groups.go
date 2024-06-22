@@ -10,7 +10,7 @@ import (
 type Groups struct{}
 
 func (s *Groups) GetById(id uuid.UUID) (*models.Group, error) {
-	return DB.GetById[models.Group](DB.GROUPS_TABLE, id)
+	return DB.GetById[models.Group](DB.GROUPS_TABLE, id, nil)
 }
 
 func (s *Groups) Create(group *models.Group) (*models.Group, error) {

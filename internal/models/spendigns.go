@@ -1,10 +1,10 @@
 package models
 
 import (
-	"math/big"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type WriteGroup struct {
@@ -28,11 +28,18 @@ type Category struct {
 }
 
 type Spendings struct {
-	ID        uuid.UUID
-	Amount    big.Float
-	Date      time.Time
-	Comment   string
-	Cateogory uuid.UUID
+	ID       uuid.UUID       `db:"id"`
+	Amount   decimal.Decimal `db:"amount"`
+	Date     time.Time       `db:"date"`
+	Comment  string          `db:"comment"`
+	Category uuid.UUID       `db:"category_id"`
+}
+
+type WriteSpendings struct {
+	Amount   decimal.Decimal `db:"amount" json:"amount,omitempty"`
+	Date     time.Time       `db:"date" json:"date,omitempty"`
+	Comment  string          `db:"comment" json:"comment,omitempty"`
+	Category uuid.UUID       `db:"category_id" json:"category,omitempty"`
 }
 
 type DetailedCategory struct {
@@ -42,9 +49,9 @@ type DetailedCategory struct {
 }
 
 type DetailedSpendings struct {
-	ID       uuid.UUID
-	Amount   big.Float
-	Date     time.Time
-	Comment  string
-	Category DetailedCategory
+	ID       uuid.UUID        `db:"id" json:"id,omitempty"`
+	Amount   decimal.Decimal  `db:"amount" json:"amount,omitempty"`
+	Date     time.Time        `db:"date" json:"date,omitempty"`
+	Comment  string           `db:"comment" json:"comment,omitempty"`
+	Category DetailedCategory `db:"category" json:"category,omitempty"`
 }
