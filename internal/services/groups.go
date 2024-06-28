@@ -13,26 +13,31 @@ func (s *Groups) GetById(id uuid.UUID) (*models.Group, error) {
 	return DB.GetById[models.Group](DB.GROUPS_TABLE, id, nil)
 }
 
-func (s *Groups) Create(group *models.Group) (*models.Group, error) {
-	group.ID = uuid.New()
+func (s *Groups) Create(data *models.WriteGroup) (*models.Group, error) {
+	group := models.Group{
+		ID:   uuid.New(),
+		Name: data.Name,
+	}
 	db := DB.GetDB()
 	_, err := db.Insert(DB.GROUPS_TABLE).Rows(group).Executor().Exec()
 	if err != nil {
 		return nil, err
 	}
-	resGroup := models.Group{}
 
-	_, err = s.GetById(group.ID)
+	resGroup, err := s.GetById(group.ID)
 	if err != nil {
 		return nil, err
 	}
+	if resGroup == nil {
+		panic("created group not found")
+	}
 
-	return &resGroup, nil
+	return resGroup, nil
 }
 
 // TODO: add pagination
 func (s *Groups) List() (*[]models.Group, error) {
-	groups, err := DB.List[models.Group](DB.CATEGORY_TABLE, nil)
+	groups, err := DB.List[models.Group](DB.GROUPS_TABLE, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -15,7 +15,7 @@ type Groups struct {
 }
 
 func (h *Groups) Create(c *gin.Context) {
-	group := &models.Group{}
+	group := &models.WriteGroup{}
 
 	err := c.ShouldBindJSON(group)
 	if err != nil {
@@ -23,14 +23,14 @@ func (h *Groups) Create(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	group, err = h.service.Create(group)
+	createdGroup, err := h.service.Create(group)
 	if err != nil {
 		slog.Error(err.Error())
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, group)
+	c.JSON(http.StatusOK, createdGroup)
 }
 
 func (h *Groups) List(c *gin.Context) {

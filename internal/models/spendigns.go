@@ -8,7 +8,7 @@ import (
 )
 
 type WriteGroup struct {
-	Name string `json:"name"`
+	Name string `json:"name,omitempty" db:"name"`
 }
 
 type Group struct {
