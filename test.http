@@ -1,47 +1,7 @@
-GET http://localhost:8080/api/v1/groups/
+GET http://localhost:8080/api/v1/groups/?limit=5&offset=5
 
-
-PUT http://localhost:8080/api/v1/groups/b0e8a2ef-ee20-427d-ae5e-077679f3b18b/
-{
-  "name": "Regular"
-}
 
 POST http://localhost:8080/api/v1/groups/
 {
-  "name": "Home"
+  "name": "test"
 }
-
-
-DELETE http://localhost:8080/api/v1/groups/e8ef841f-0a6b-49de-88b5-d2165c85a204/
-
-
-# categories
-
-POST http://localhost:8080/api/v1/categories/
-{
-  "name": "New Categoryyyy",
-  "group": "b0e8a2ef-ee20-427d-ae5e-077679f3b18c"
-}
-
-
-GET http://localhost:8080/api/v1/categories/
-
-PUT http://localhost:8080/api/v1/categories/6bc5abfd-866c-49f5-9483-1d2c837f167a/
-{
-  "name": "Homee",
-  "group": "b0e8a2ef-ee20-427d-ae5e-077679f3b18b"
-}
-
-
-# spendigns
-POST http://localhost:8080/api/v1/spendings/
-{
-  "amount": "100",
-  "category": "6bc5abfd-866c-49f5-9483-1d2c837f167a",
-  "comment": "some comment",
-  "date": "2024-06-22T15:04:05Z"
-}
-
-GET http://localhost:8080/api/v1/spendings/
-
-DELETE http://localhost:8080/api/v1/spendings/626f5b89-4944-4665-813f-df5d75a0f0ed/

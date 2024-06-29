@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: "ft"
+      POSTGRES_USER: "ft_user"
+      POSTGRES_PASSWORD: "password"
+    ports:
+      - "5432:5432"
