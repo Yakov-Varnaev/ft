@@ -1,7 +1,7 @@
 package model
 
 type GroupInfo struct {
-	Name string `validator:"required" json:"name"`
+	Name string `validate:"required,unique-name" json:"name"`
 }
 
 type Group struct {

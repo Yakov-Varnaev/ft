@@ -16,17 +16,26 @@ type Service struct {
 	repo *repository.Repositroy
 }
 
+func (s *Service) validateName(field validator.FieldLevel) bool {
+	exists, err := s.repo.CheckNameExists(field.Field().String())
+	if err != nil {
+		fmt.Println(err.Error())
+		return true
+	}
+	return !exists
+}
+
 func New(repo *repository.Repositroy) *Service {
-	return &Service{repo}
+	s := &Service{repo}
+	validate.RegisterValidation("unique-name", s.validateName)
+	return s
 }
 
 func (s *Service) Create(data *model.GroupInfo) (*model.Group, error) {
 	if data == nil {
 		return nil, fmt.Errorf("data cannot be nil")
 	}
-	fmt.Println("data is not nil btw")
 	err := validate.Struct(data)
-	fmt.Println("validated")
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +43,6 @@ func (s *Service) Create(data *model.GroupInfo) (*model.Group, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("here we go service")
 	return model.FromRepoGroup(group), nil
 }
 

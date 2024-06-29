@@ -14,6 +14,15 @@ func New(db *sqlx.DB) *Repositroy {
 	return &Repositroy{db}
 }
 
+func (r *Repositroy) CheckNameExists(name string) (bool, error) {
+	var exists bool
+	err := r.db.QueryRowx(
+		"SELECT EXISTS(SELECT id FROM groups WHERE name=$1)",
+		name,
+	).Scan(&exists)
+	return exists, err
+}
+
 func (r *Repositroy) Create(data *model.GroupInfo) (*model.Group, error) {
 	var group model.Group
 	err := r.db.QueryRowx(

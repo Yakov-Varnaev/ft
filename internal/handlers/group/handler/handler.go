@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/Yakov-Varnaev/ft/internal/service/group/model"
 	"github.com/Yakov-Varnaev/ft/internal/service/group/service"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
+	"github.com/go-playground/validator/v10"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,15 +28,22 @@ func New(service *service.Service) *Handler {
 
 func (h *Handler) Post(c *gin.Context) {
 	var data model.GroupInfo
-	fmt.Println("here we go")
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	group, err := h.service.Create(&data)
 	if err != nil {
-		fmt.Println(err.Error())
-		c.AbortWithError(http.StatusBadRequest, err)
+
+		if validationErrs, ok := err.(validator.ValidationErrors); ok {
+			e := map[string]string{}
+			for _, err := range validationErrs {
+				e[err.Field()] = err.Tag() + err.Param()
+			}
+			c.AbortWithStatusJSON(http.StatusBadRequest, e)
+		} else {
+			c.AbortWithError(http.StatusInternalServerError, err)
+		}
 		return
 	}
 	c.JSON(http.StatusOK, group)
