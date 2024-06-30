@@ -6,6 +6,7 @@ import (
 	repository "github.com/Yakov-Varnaev/ft/internal/repository/group"
 	"github.com/Yakov-Varnaev/ft/internal/service/group/model"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
+	webErrors "github.com/Yakov-Varnaev/ft/pkg/web/errors"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -33,15 +34,14 @@ func New(repo *repository.Repository) *Service {
 
 func (s *Service) Create(data *model.GroupInfo) (*model.Group, error) {
 	if data == nil {
-		return nil, fmt.Errorf("data cannot be nil")
+		panic("Data cannot be nil.")
 	}
-	err := validate.Struct(data)
-	if err != nil {
+	if err := validate.Struct(data); err != nil {
 		return nil, err
 	}
 	group, err := s.repo.Create(model.ToRepoGroupInfo(data))
 	if err != nil {
-		return nil, err
+		return nil, &webErrors.InternalServerError{Err: err}
 	}
 	return model.FromRepoGroup(group), nil
 }

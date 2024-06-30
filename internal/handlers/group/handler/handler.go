@@ -1,54 +1,14 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/Yakov-Varnaev/ft/internal/service/group/model"
 	"github.com/Yakov-Varnaev/ft/internal/service/group/service"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
-	"github.com/go-playground/validator/v10"
 
 	"github.com/gin-gonic/gin"
 )
-
-var errMap = map[string]string{
-	"required": "Field %s is required",
-}
-
-var tagPrefixMap = map[string]string{
-	"required": "Required",
-	"email":    "InvalidEmail",
-	"min":      "ShouldMin",
-	"max":      "ShouldMax",
-	"len":      "ShouldLen",
-	"eq":       "ShouldEq",
-	"gt":       "ShouldGt",
-	"gte":      "ShouldGte",
-	"lt":       "ShouldLt",
-	"lte":      "ShouldLte",
-}
-
-func i18n(msgTemplate string, params ...interface{}) string {
-	return fmt.Sprintf(msgTemplate, params...)
-}
-
-func composeMsg(e validator.FieldError) string {
-	if prefix, ok := tagPrefixMap[e.Tag()]; ok {
-		return fmt.Sprintf("%s%s", prefix, e.Field())
-	}
-	return ""
-}
-
-func translateError(err error) string {
-	var errTxt string
-	validationErrors := err.(validator.ValidationErrors)
-	for _, e := range validationErrors {
-		errTxt = i18n(composeMsg(e), e.Param())
-		break
-	}
-	return errTxt
-}
 
 type Handler struct {
 	service *service.Service
@@ -76,6 +36,7 @@ func (h *Handler) Post(c *gin.Context) {
 	}
 	group, err := h.service.Create(&data)
 	if err != nil {
+		c.Error(err)
 		return
 	}
 	c.JSON(http.StatusOK, group)
@@ -120,7 +81,6 @@ func (h *Handler) Put(c *gin.Context) {
 	}
 	group, err := h.service.Update(id, &data)
 	if err != nil {
-		fmt.Errorf(err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, group)

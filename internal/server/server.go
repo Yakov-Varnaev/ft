@@ -16,7 +16,7 @@ func New() *gin.Engine {
 	}
 	db := database.New(cfg.Database)
 	r := gin.New()
-	r.Use(gin.Logger())
+	r.Use(gin.Logger(), gin.Recovery(), ErrorHandler)
 
 	apiGroup := r.Group("api")
 
