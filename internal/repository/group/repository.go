@@ -6,15 +6,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type Repositroy struct {
+type Repository struct {
 	db *sqlx.DB
 }
 
-func New(db *sqlx.DB) *Repositroy {
-	return &Repositroy{db}
+func New(db *sqlx.DB) *Repository {
+	return &Repository{db}
 }
 
-func (r *Repositroy) CheckNameExists(name string) (bool, error) {
+func (r *Repository) CheckNameExists(name string) (bool, error) {
 	var exists bool
 	err := r.db.QueryRowx(
 		"SELECT EXISTS(SELECT id FROM groups WHERE name=$1)",
@@ -23,7 +23,7 @@ func (r *Repositroy) CheckNameExists(name string) (bool, error) {
 	return exists, err
 }
 
-func (r *Repositroy) Create(data *model.GroupInfo) (*model.Group, error) {
+func (r *Repository) Create(data *model.GroupInfo) (*model.Group, error) {
 	var group model.Group
 	err := r.db.QueryRowx(
 		`INSERT INTO groups (name) VALUES ($1) RETURNING id, name`, data.Name,
@@ -34,7 +34,7 @@ func (r *Repositroy) Create(data *model.GroupInfo) (*model.Group, error) {
 	return &group, nil
 }
 
-func (r *Repositroy) List(pg pagination.Pagination) ([]*model.Group, int, error) {
+func (r *Repository) List(pg pagination.Pagination) ([]*model.Group, int, error) {
 	var count int
 	err := r.db.QueryRowx(
 		"SELECT COUNT(*) from groups",
@@ -59,4 +59,28 @@ func (r *Repositroy) List(pg pagination.Pagination) ([]*model.Group, int, error)
 		groups = append(groups, &group)
 	}
 	return groups, count, nil
+}
+
+func (r *Repository) Update(id string, data *model.GroupInfo) (*model.Group, error) {
+	var group model.Group
+
+	err := r.db.QueryRowx(
+		"UPDATE groups SET name=$1 WHERE id=$2 RETURNING id, name",
+		data.Name, id,
+	).Scan(&group.UUID, &group.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &group, nil
+}
+
+func (r *Repository) Delete(id string) error {
+	_, err := r.db.Exec(
+		"DELETE FROM groups where id=$1",
+		id,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }

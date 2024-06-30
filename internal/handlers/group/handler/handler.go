@@ -18,8 +18,11 @@ type Handler struct {
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	v1 := r.Group("v1")
 	v1Group := v1.Group("groups")
-	v1Group.GET("/", h.Get)
+
+	v1Group.GET("/", h.List)
 	v1Group.POST("/", h.Post)
+	v1Group.DELETE("/:id/", h.Delete)
+	v1Group.PUT("/:id/", h.Put)
 }
 
 func New(service *service.Service) *Handler {
@@ -49,7 +52,7 @@ func (h *Handler) Post(c *gin.Context) {
 	c.JSON(http.StatusOK, group)
 }
 
-func (h *Handler) Get(c *gin.Context) {
+func (h *Handler) List(c *gin.Context) {
 	pg, err := pagination.NewFromRequest(c)
 	if err != nil {
 		c.AbortWithStatusJSON(
@@ -69,4 +72,46 @@ func (h *Handler) Get(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, groups)
+}
+
+func (h *Handler) Put(c *gin.Context) {
+	var data model.GroupInfo
+	id := c.Param("id")
+	if id == "" {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	err := c.ShouldBindJSON(&data)
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			gin.H{"detail": err.Error()},
+		)
+		return
+	}
+	group, err := h.service.Update(id, &data)
+	if err != nil {
+
+		if validationErrs, ok := err.(validator.ValidationErrors); ok {
+			e := map[string]string{}
+			for _, err := range validationErrs {
+				e[err.Field()] = err.Tag() + err.Param()
+			}
+			c.AbortWithStatusJSON(http.StatusBadRequest, e)
+		} else {
+			c.AbortWithError(http.StatusInternalServerError, err)
+		}
+		return
+	}
+	c.JSON(http.StatusOK, group)
+}
+
+func (h *Handler) Delete(c *gin.Context) {
+	id := c.Param("id")
+	err := h.service.Delete(id)
+	if err != nil {
+		c.AbortWithError(http.StatusNotFound, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
 }

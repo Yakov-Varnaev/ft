@@ -13,7 +13,7 @@ import (
 var validate = validator.New()
 
 type Service struct {
-	repo *repository.Repositroy
+	repo *repository.Repository
 }
 
 func (s *Service) validateName(field validator.FieldLevel) bool {
@@ -25,7 +25,7 @@ func (s *Service) validateName(field validator.FieldLevel) bool {
 	return !exists
 }
 
-func New(repo *repository.Repositroy) *Service {
+func New(repo *repository.Repository) *Service {
 	s := &Service{repo}
 	validate.RegisterValidation("unique-name", s.validateName)
 	return s
@@ -57,4 +57,20 @@ func (s *Service) List(pg pagination.Pagination) (*pagination.Page[*model.Group]
 		serviceGroups[i] = model.FromRepoGroup(group)
 	}
 	return &pagination.Page[*model.Group]{Data: serviceGroups, Total: count}, nil
+}
+
+func (s *Service) Update(id string, data *model.GroupInfo) (*model.Group, error) {
+	err := validate.Struct(data)
+	if err != nil {
+		return nil, err
+	}
+	group, err := s.repo.Update(id, model.ToRepoGroupInfo(data))
+	if err != nil {
+		return nil, err
+	}
+	return model.FromRepoGroup(group), nil
+}
+
+func (s *Service) Delete(id string) error {
+	return s.repo.Delete(id)
 }

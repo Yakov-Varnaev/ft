@@ -1,8 +1,20 @@
-GET http://localhost:8080/api/v1/groups/?limit=5&offset=0
-
-# 
-
 POST http://localhost:8080/api/v1/groups/
 {
   "name": "test"
 }
+
+#
+
+GET http://localhost:8080/api/v1/groups/?limit=5&offset=0
+
+# 
+
+PUT http://localhost:8080/api/v1/groups/608970d1-5061-43a7-a4fe-5c3d4d8b93ac/
+{
+  "name": "test 1"
+}
+
+
+# 
+
+DELETE http://localhost:8080/api/v1/groups/77aaa0b0-2160-4214-b6c6-766a1861433c/
