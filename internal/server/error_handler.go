@@ -16,11 +16,24 @@ func ErrorHandler(c *gin.Context) {
 		case *webErrors.InternalServerError:
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
+		case *webErrors.NotFoundError:
+			c.AbortWithStatusJSON(
+				http.StatusNotFound,
+				gin.H{"message": e.Error()},
+			)
+			return
 		case validator.ValidationErrors:
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
 				webErrors.Translate(e),
 			)
+			return
+		case *webErrors.BadRequest:
+			c.AbortWithStatusJSON(
+				http.StatusBadRequest,
+				gin.H{"message": e.Error()},
+			)
+			return
 		default:
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return

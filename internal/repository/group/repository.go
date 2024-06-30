@@ -1,6 +1,9 @@
 package repository
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/Yakov-Varnaev/ft/internal/repository/group/model"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
 	"github.com/jmoiron/sqlx"
@@ -15,12 +18,35 @@ func New(db *sqlx.DB) *Repository {
 }
 
 func (r *Repository) CheckNameExists(name string) (bool, error) {
+	return r.Exists(map[string]interface{}{"name": name})
+}
+
+func (r *Repository) Exists(filters map[string]interface{}) (bool, error) {
+	q := "SELECT id FROM groups WHERE "
+	strFilters := []string{}
+	idx := 1
+	params := []interface{}{}
+	// TODO: maybe it's a good idea to move this logic to separate function
+	for k, v := range filters {
+		strFilters = append(strFilters, fmt.Sprintf("%s = $%d", k, idx))
+		idx++
+		params = append(params, v)
+	}
+	if len(strFilters) > 1 {
+		q = q + strings.Join(strFilters, " AND ")
+	} else {
+		q = q + strFilters[0]
+	}
+
 	var exists bool
 	err := r.db.QueryRowx(
-		"SELECT EXISTS(SELECT id FROM groups WHERE name=$1)",
-		name,
+		fmt.Sprintf("SELECT EXISTS(%s)", q),
+		params...,
 	).Scan(&exists)
-	return exists, err
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
 }
 
 func (r *Repository) Create(data *model.GroupInfo) (*model.Group, error) {

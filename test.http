@@ -1,20 +1,26 @@
-POST http://localhost:8080/api/v1/groups/
+@base="http://localhost:8080/api/v1"
+
+# Create Group
+
+POST {{base}}/groups/
+Content-Type: application/json
+{
+  "name": "group"
+}
+
+# List Groups
+
+GET {{base}}/groups/?limit=5&offset=0
+
+# Update Groups
+
+PUT {{base}}/groups/608970d1-5061-43a7-a4fe-5c3d4d8b93ac/
+Content-Type: application/json
 {
   "name": "test 1"
 }
 
-#
 
-GET http://localhost:8080/api/v1/groups/?limit=5&offset=0
+# Delete Group
 
-# 
-
-PUT http://localhost:8080/api/v1/groups/608970d1-5061-43a7-a4fe-5c3d4d8b93ac/
-{
-  "name": "test 1"
-}
-
-
-# 
-
-DELETE http://localhost:8080/api/v1/groups/77aaa0b0-2160-4214-b6c6-766a1861433c/
+DELETE {{base}}/groups/532870e6-6b01-40f9-ad9c-ff1ef59623ec/

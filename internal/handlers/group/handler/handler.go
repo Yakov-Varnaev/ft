@@ -6,6 +6,7 @@ import (
 	"github.com/Yakov-Varnaev/ft/internal/service/group/model"
 	"github.com/Yakov-Varnaev/ft/internal/service/group/service"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
+	webErrors "github.com/Yakov-Varnaev/ft/pkg/web/errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +32,7 @@ func New(service *service.Service) *Handler {
 func (h *Handler) Post(c *gin.Context) {
 	var data model.GroupInfo
 	if err := c.ShouldBindJSON(&data); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.Error(&webErrors.BadRequest{Message: "Body cannot be empty."})
 		return
 	}
 	group, err := h.service.Create(&data)
@@ -45,20 +46,12 @@ func (h *Handler) Post(c *gin.Context) {
 func (h *Handler) List(c *gin.Context) {
 	pg, err := pagination.NewFromRequest(c)
 	if err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			gin.H{
-				"detail": err.Error(),
-			},
-		)
+		c.Error(&webErrors.BadRequest{Message: err.Error()})
 		return
 	}
 	groups, err := h.service.List(pg)
 	if err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			gin.H{"detail": err.Error()},
-		)
+		c.Error(err)
 		return
 	}
 	c.JSON(http.StatusOK, groups)
@@ -71,16 +64,13 @@ func (h *Handler) Put(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	err := c.ShouldBindJSON(&data)
-	if err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			gin.H{"detail": err.Error()},
-		)
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.Error(err)
 		return
 	}
 	group, err := h.service.Update(id, &data)
 	if err != nil {
+		c.Error(err)
 		return
 	}
 	c.JSON(http.StatusOK, group)
@@ -88,9 +78,8 @@ func (h *Handler) Put(c *gin.Context) {
 
 func (h *Handler) Delete(c *gin.Context) {
 	id := c.Param("id")
-	err := h.service.Delete(id)
-	if err != nil {
-		c.AbortWithError(http.StatusNotFound, err)
+	if err := h.service.Delete(id); err != nil {
+		c.Error(err)
 		return
 	}
 	c.Status(http.StatusNoContent)
