@@ -61,8 +61,7 @@ func (h *Handler) Put(c *gin.Context) {
 	var data model.GroupInfo
 	id := c.Param("id")
 	if id == "" {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
+		panic("id is required here.")
 	}
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.Error(err)
