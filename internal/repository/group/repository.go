@@ -2,10 +2,10 @@ package repository
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/Yakov-Varnaev/ft/internal/repository/group/model"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
+	repoUtils "github.com/Yakov-Varnaev/ft/pkg/repository/utils"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -21,22 +21,11 @@ func (r *Repository) CheckNameExists(name string) (bool, error) {
 	return r.Exists(map[string]interface{}{"name": name})
 }
 
-func (r *Repository) Exists(filters map[string]interface{}) (bool, error) {
+func (r *Repository) Exists(filters repoUtils.Filters) (bool, error) {
 	q := "SELECT id FROM groups WHERE "
-	strFilters := []string{}
-	idx := 1
-	params := []interface{}{}
-	// TODO: maybe it's a good idea to move this logic to separate function
-	for k, v := range filters {
-		strFilters = append(strFilters, fmt.Sprintf("%s = $%d", k, idx))
-		idx++
-		params = append(params, v)
-	}
-	if len(strFilters) > 1 {
-		q = q + strings.Join(strFilters, " AND ")
-	} else {
-		q = q + strFilters[0]
-	}
+
+	whereQ, params := filters.Prepare() // I really wany simple sql builder...
+	q = q + whereQ
 
 	var exists bool
 	err := r.db.QueryRowx(
