@@ -40,7 +40,7 @@ func (h *Handler) Post(c *gin.Context) {
 		c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, group)
+	c.JSON(http.StatusCreated, group)
 }
 
 func (h *Handler) List(c *gin.Context) {

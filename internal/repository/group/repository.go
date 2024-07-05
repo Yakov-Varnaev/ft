@@ -49,6 +49,17 @@ func (r *Repository) Create(data *model.GroupInfo) (*model.Group, error) {
 	return &group, nil
 }
 
+func (r *Repository) GetById(id string) (*model.Group, error) {
+	var group model.Group
+	err := r.db.QueryRowx(
+		`SELECT id, name FROM groups WHERE id = $1`, id,
+	).Scan(&group.UUID, &group.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &group, nil
+}
+
 func (r *Repository) List(pg pagination.Pagination) ([]*model.Group, int, error) {
 	var count int
 	err := r.db.QueryRowx(

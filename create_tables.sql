@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS groups (
 CREATE TABLE IF NOT EXISTS categories (
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
-    group_id CHAR(36) NOT NULL,
+    group_id UUID NOT NULL,
     FOREIGN KEY (group_id) REFERENCES groups(id)
 );
 
