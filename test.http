@@ -24,3 +24,29 @@ Content-Type: application/json
 # Delete Group
 
 DELETE {{base}}/groups/532870e6-6b01-40f9-ad9c-ff1ef59623ec/
+
+## Categories
+
+POST {{base}}/categories/
+Content-Type: application/json
+{
+  "name": "Category 25",
+  "group_id": "44e90df5-f1e9-49f6-9878-a649bcd91c35"
+}
+
+# List Categories
+
+GET {{base}}/categories/?limit=10&offset=0
+
+# Update Category
+
+PUT {{base}}/categories/78fc0ddb-e650-45fa-8cda-6e8a2274e4fd/
+{
+  "name": "New name 12",
+  "group_id": "44e90df5-f1e9-49f6-9878-a649bcd91c35"
+}
+
+
+# Delete Category
+
+DELETE {{base}}/categories/b2d2a16e-9443-48d2-bd05-a39398db659d/

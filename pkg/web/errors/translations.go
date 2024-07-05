@@ -8,8 +8,9 @@ import (
 )
 
 var errMap = map[string]string{
-	"required":    "Field is required",
-	"unique-name": "Must be unique",
+	"required":     "Field is required",
+	"unique-name":  "Must be unique",
+	"group-exists": "Group with given ID does not exist",
 }
 
 func Translate(err error) gin.H {

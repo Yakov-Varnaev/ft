@@ -24,7 +24,7 @@ func (r *Repository) CheckNameExists(name string) (bool, error) {
 func (r *Repository) Exists(filters repoUtils.Filters) (bool, error) {
 	q := "SELECT id FROM groups WHERE "
 
-	whereQ, params := filters.Prepare() // I really wany simple sql builder...
+	whereQ, params := filters.Prepare() // I really want simple sql builder...
 	q = q + whereQ
 
 	var exists bool
