@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
+	"github.com/Yakov-Varnaev/ft/internal/service/group"
 	"github.com/Yakov-Varnaev/ft/internal/service/group/model"
-	"github.com/Yakov-Varnaev/ft/internal/service/group/service"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
 	webErrors "github.com/Yakov-Varnaev/ft/pkg/web/errors"
 

@@ -3,9 +3,9 @@ package server
 import (
 	"github.com/Yakov-Varnaev/ft/internal/config"
 	"github.com/Yakov-Varnaev/ft/internal/database"
-	groupHandler "github.com/Yakov-Varnaev/ft/internal/handlers/group/handler"
+	groupHandler "github.com/Yakov-Varnaev/ft/internal/handlers/group"
 	groupRepository "github.com/Yakov-Varnaev/ft/internal/repository/group"
-	groupService "github.com/Yakov-Varnaev/ft/internal/service/group/service"
+	groupService "github.com/Yakov-Varnaev/ft/internal/service/group"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
