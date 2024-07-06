@@ -61,8 +61,30 @@ func (r *Repository) GetById(id string) (*model.Group, error) {
 }
 
 func (r *Repository) List(pg pagination.Pagination) ([]*model.Group, int, error) {
-	q := "SELECT id, name FROM groups"
-	return repoUtils.List[model.Group](r.db, "groups", q, pg)
+	var count int
+	err := r.db.QueryRowx(
+		"SELECT COUNT(*) from groups",
+	).Scan(&count)
+	if err != nil {
+		return nil, 0, err
+	}
+	rows, err := r.db.Queryx(
+		"SELECT id, name FROM groups LIMIT $1 OFFSET $2",
+		pg.Limit, pg.Offset,
+	)
+	if err != nil {
+		return nil, 0, err
+	}
+	groups := make([]*model.Group, 0)
+	for rows.Next() {
+		var group model.Group
+		err = rows.Scan(&group.UUID, &group.Name)
+		if err != nil {
+			return nil, 0, err
+		}
+		groups = append(groups, &group)
+	}
+	return groups, count, nil
 }
 
 func (r *Repository) Update(id string, data *model.GroupInfo) (*model.Group, error) {

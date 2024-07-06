@@ -77,8 +77,8 @@ func (s *Service) List(pg pagination.Pagination) (*pagination.Page[*model.Catego
 	}
 
 	serviceCategories := make([]*model.Category, len(categories))
-	for i, category := range categories {
-		serviceCategories[i] = model.FromRepoCategory(category)
+	for i, group := range categories {
+		serviceCategories[i] = model.FromRepoCategory(group)
 	}
 	return &pagination.Page[*model.Category]{Data: serviceCategories, Total: count}, nil
 }

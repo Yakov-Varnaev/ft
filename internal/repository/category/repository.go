@@ -5,7 +5,7 @@ import (
 
 	"github.com/Yakov-Varnaev/ft/internal/repository/category/model"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
-	repoUtils "github.com/Yakov-Varnaev/ft/pkg/repository/utils"
+	"github.com/Yakov-Varnaev/ft/pkg/repository/utils"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -17,7 +17,7 @@ func New(db *sqlx.DB) *Repository {
 	return &Repository{db}
 }
 
-func (r *Repository) Exists(filters repoUtils.Filters) (bool, error) {
+func (r *Repository) Exists(filters utils.Filters) (bool, error) {
 	q := "SELECT id from categories WHERE "
 
 	whereQ, params := filters.Prepare()
@@ -46,8 +46,30 @@ func (r *Repository) Create(data *model.CategoryInfo) (*model.Category, error) {
 }
 
 func (r *Repository) List(pg pagination.Pagination) ([]*model.Category, int, error) {
-	q := "SELECT id, name, group_id FROM categories"
-	return repoUtils.List[model.Category](r.db, "categories", q, pg)
+	var count int
+	err := r.db.QueryRowx(
+		"SELECT COUNT(*) from categories",
+	).Scan(&count)
+	if err != nil {
+		return nil, 0, err
+	}
+	rows, err := r.db.Queryx(
+		"SELECT id, name, group_id FROM categories LIMIT $1 OFFSET $2",
+		pg.Limit, pg.Offset,
+	)
+	if err != nil {
+		return nil, 0, err
+	}
+	groups := make([]*model.Category, 0)
+	for rows.Next() {
+		var category model.Category
+		err = rows.Scan(&category.UUID, &category.Name, &category.GroupId)
+		if err != nil {
+			return nil, 0, err
+		}
+		groups = append(groups, &category)
+	}
+	return groups, count, nil
 }
 
 func (r *Repository) Update(id string, data *model.CategoryInfo) (*model.Category, error) {
