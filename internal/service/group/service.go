@@ -1,8 +1,7 @@
 package service
 
 import (
-	repository "github.com/Yakov-Varnaev/ft/internal/repository/group"
-	"github.com/Yakov-Varnaev/ft/internal/service/group/model"
+	repoModel "github.com/Yakov-Varnaev/ft/internal/repository/group/model"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
 	repoUtils "github.com/Yakov-Varnaev/ft/pkg/repository/utils"
 	webErrors "github.com/Yakov-Varnaev/ft/pkg/web/errors"
@@ -12,8 +11,17 @@ import (
 
 var validate = validator.New()
 
+type Repo interface {
+	CheckNameExists(string) (bool, error)
+	Exists(repoUtils.Filters) (bool, error)
+	Create(data *repoModel.GroupInfo) (*repoModel.Group, error)
+	Update(id string, data *repoModel.GroupInfo) (*repoModel.Group, error)
+	List(pg pagination.Pagination) ([]*repoModel.Group, int, error)
+	Delete(id string) error
+}
+
 type Service struct {
-	repo *repository.Repository
+	repo Repo
 }
 
 // check if group with given id exists, returns NotFoundError
@@ -39,51 +47,51 @@ func (s *Service) validateName(field validator.FieldLevel) bool {
 	return !exists
 }
 
-func New(repo *repository.Repository) *Service {
+func New(repo Repo) *Service {
 	s := &Service{repo}
 	validate.RegisterValidation("unique-name", s.validateName)
 	return s
 }
 
-func (s *Service) Create(data *model.GroupInfo) (*model.Group, error) {
+func (s *Service) Create(data *GroupInfo) (*Group, error) {
 	if data == nil {
 		panic("Data cannot be nil.")
 	}
 	if err := validate.Struct(data); err != nil {
 		return nil, err
 	}
-	group, err := s.repo.Create(model.ToRepoGroupInfo(data))
+	group, err := s.repo.Create(ToRepoGroupInfo(data))
 	if err != nil {
 		return nil, &webErrors.InternalServerError{Err: err}
 	}
-	return model.FromRepoGroup(group), nil
+	return FromRepoGroup(group), nil
 }
 
-func (s *Service) List(pg pagination.Pagination) (*pagination.Page[*model.Group], error) {
+func (s *Service) List(pg pagination.Pagination) (*pagination.Page[*Group], error) {
 	groups, count, err := s.repo.List(pg)
 	if err != nil {
 		return nil, err
 	}
 
-	serviceGroups := make([]*model.Group, len(groups))
+	serviceGroups := make([]*Group, len(groups))
 	for i, group := range groups {
-		serviceGroups[i] = model.FromRepoGroup(group)
+		serviceGroups[i] = FromRepoGroup(group)
 	}
-	return &pagination.Page[*model.Group]{Data: serviceGroups, Total: count}, nil
+	return &pagination.Page[*Group]{Data: serviceGroups, Total: count}, nil
 }
 
-func (s *Service) Update(id string, data *model.GroupInfo) (*model.Group, error) {
+func (s *Service) Update(id string, data *GroupInfo) (*Group, error) {
 	if _, err := s.checkIdExists(id); err != nil {
 		return nil, err
 	}
 	if err := validate.Struct(data); err != nil {
 		return nil, err
 	}
-	group, err := s.repo.Update(id, model.ToRepoGroupInfo(data))
+	group, err := s.repo.Update(id, ToRepoGroupInfo(data))
 	if err != nil {
 		return nil, err
 	}
-	return model.FromRepoGroup(group), nil
+	return FromRepoGroup(group), nil
 }
 
 func (s *Service) Delete(id string) error {

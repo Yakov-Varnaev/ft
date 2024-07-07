@@ -3,16 +3,22 @@ package handler
 import (
 	"net/http"
 
-	"github.com/Yakov-Varnaev/ft/internal/service/group"
-	"github.com/Yakov-Varnaev/ft/internal/service/group/model"
+	service "github.com/Yakov-Varnaev/ft/internal/service/group"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
 	webErrors "github.com/Yakov-Varnaev/ft/pkg/web/errors"
 
 	"github.com/gin-gonic/gin"
 )
 
+type Service interface {
+	Create(*service.GroupInfo) (*service.Group, error)
+	List(pg pagination.Pagination) (*pagination.Page[*service.Group], error)
+	Update(id string, data *service.GroupInfo) (*service.Group, error)
+	Delete(id string) error
+}
+
 type Handler struct {
-	service *service.Service
+	service Service
 }
 
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
@@ -30,7 +36,7 @@ func New(service *service.Service) *Handler {
 }
 
 func (h *Handler) Post(c *gin.Context) {
-	var data model.GroupInfo
+	var data service.GroupInfo
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.Error(&webErrors.BadRequest{Message: "Body cannot be empty."})
 		return
@@ -58,7 +64,7 @@ func (h *Handler) List(c *gin.Context) {
 }
 
 func (h *Handler) Put(c *gin.Context) {
-	var data model.GroupInfo
+	var data service.GroupInfo
 	id := c.Param("id")
 	if id == "" {
 		panic("id is required here.")
