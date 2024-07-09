@@ -21,7 +21,7 @@ func New(db *sqlx.DB) *repository {
 	return &repository{db}
 }
 
-const createQuery string = `INSERT INTO groups VALUES (name) RETURNING id, name`
+const createQuery string = `INSERT INTO groups (name) VALUES ($1) RETURNING id, name`
 
 func (r *repository) Exists(filters utils.Filters) (bool, error) {
 	q := "SELECT id FROM groups WHERE "

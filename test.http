@@ -5,7 +5,7 @@
 POST {{base}}/groups
 Content-Type: application/json
 {
-  "name": "group"
+  "name": "group 123"
 }
 
 # List Groups
