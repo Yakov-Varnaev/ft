@@ -2,7 +2,7 @@
 
 # Create Group
 
-POST {{base}}/groups/
+POST {{base}}/groups
 Content-Type: application/json
 {
   "name": "group"
@@ -10,7 +10,7 @@ Content-Type: application/json
 
 # List Groups
 
-GET {{base}}/groups/?limit=5&offset=0
+GET {{base}}/groups?limit=5&offset=0
 
 # Update Groups
 

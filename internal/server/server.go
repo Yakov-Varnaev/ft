@@ -1,0 +1,32 @@
+package server
+
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
+)
+
+type Server struct {
+	h      *handlerProvider
+	engine *gin.Engine
+}
+
+func NewServer(db *sqlx.DB) *Server {
+	serviceProvider := newServiceProvider(db)
+	return &Server{h: serviceProvider, engine: gin.Default()}
+}
+
+func (s *Server) Run() error {
+	s.RegisterRoutes()
+	return s.engine.Run()
+}
+
+func (s *Server) RegisterRoutes() {
+	apiGroup := s.engine.Group("/api")
+	{
+		v1 := apiGroup.Group("/v1")
+		{
+			groupGroup := v1.Group("/groups")
+			groupGroup.GET("", s.h.groupHandler.List)
+		}
+	}
+}
