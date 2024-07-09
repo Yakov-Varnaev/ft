@@ -40,6 +40,16 @@ func (r *repository) Exists(filters utils.Filters) (bool, error) {
 	return exists, nil
 }
 
+func (r *repository) Create(info *model.GroupInfo) (*model.Group, error) {
+	var group model.Group
+	data := converter.ToRepoGroupInfo(info)
+	err := r.db.QueryRowx(createQuery, data.Name).Scan(&group.ID, &group.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &group, nil
+}
+
 func (r *repository) List() ([]*model.Group, error) {
 	// err := r.db.QueryRowx(
 	// 	"SELECT COUNT(*) from groups",
@@ -64,14 +74,4 @@ func (r *repository) List() ([]*model.Group, error) {
 		groups = append(groups, &group)
 	}
 	return groups, nil
-}
-
-func (r *repository) Create(info *model.GroupInfo) (*model.Group, error) {
-	var group model.Group
-	data := converter.ToRepoGroupInfo(info)
-	err := r.db.QueryRowx(createQuery, data.Name).Scan(&group.ID, &group.Name)
-	if err != nil {
-		return nil, err
-	}
-	return &group, nil
 }

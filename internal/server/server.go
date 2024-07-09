@@ -21,6 +21,7 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) RegisterRoutes() {
+	s.engine.Use(errorHandler)
 	apiGroup := s.engine.Group("/api")
 	{
 		v1 := apiGroup.Group("/v1")
