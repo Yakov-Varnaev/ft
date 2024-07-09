@@ -11,6 +11,7 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+
 	db := database.New(cfg.DB)
 	defer db.Close()
 

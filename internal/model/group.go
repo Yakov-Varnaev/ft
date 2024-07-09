@@ -5,6 +5,6 @@ type GroupInfo struct {
 }
 
 type Group struct {
+	ID string `json:"id"`
 	GroupInfo
-	ID string
 }
