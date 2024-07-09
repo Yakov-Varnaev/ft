@@ -5,6 +5,7 @@ import (
 	"github.com/Yakov-Varnaev/ft/internal/repository"
 	def "github.com/Yakov-Varnaev/ft/internal/service"
 	"github.com/Yakov-Varnaev/ft/pkg/repository/utils"
+	webErrors "github.com/Yakov-Varnaev/ft/pkg/web/errors"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -48,4 +49,21 @@ func (s *service) List() ([]*model.Group, error) {
 		return nil, err
 	}
 	return groups, nil
+}
+
+func (s *service) Update(id string, info *model.GroupInfo) (*model.Group, error) {
+	exists, err := s.r.Exists(utils.Filters{"id": id})
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, &webErrors.NotFoundError{
+			Message: "Group with given id not found",
+		}
+	}
+	updatedGroup, err := s.r.Update(id, info)
+	if err != nil {
+		return nil, err
+	}
+	return updatedGroup, nil
 }

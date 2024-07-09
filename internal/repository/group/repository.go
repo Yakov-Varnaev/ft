@@ -6,6 +6,7 @@ import (
 	"github.com/Yakov-Varnaev/ft/internal/model"
 	def "github.com/Yakov-Varnaev/ft/internal/repository"
 	"github.com/Yakov-Varnaev/ft/internal/repository/group/converter"
+	repoModel "github.com/Yakov-Varnaev/ft/internal/repository/group/model"
 
 	"github.com/Yakov-Varnaev/ft/pkg/repository/utils"
 	"github.com/jmoiron/sqlx"
@@ -41,16 +42,17 @@ func (r *repository) Exists(filters utils.Filters) (bool, error) {
 }
 
 func (r *repository) Create(info *model.GroupInfo) (*model.Group, error) {
-	var group model.Group
+	var group repoModel.Group
 	data := converter.ToRepoGroupInfo(info)
 	err := r.db.QueryRowx(createQuery, data.Name).Scan(&group.ID, &group.Name)
 	if err != nil {
 		return nil, err
 	}
-	return &group, nil
+	return converter.FromRepoGroup(&group), nil
 }
 
 func (r *repository) List() ([]*model.Group, error) {
+	// TODO: add pagination
 	// err := r.db.QueryRowx(
 	// 	"SELECT COUNT(*) from groups",
 	// ).Scan(&count)
@@ -66,12 +68,25 @@ func (r *repository) List() ([]*model.Group, error) {
 	}
 	groups := make([]*model.Group, 0)
 	for rows.Next() {
-		var group model.Group
+		var group repoModel.Group
 		err = rows.Scan(&group.ID, &group.Name)
 		if err != nil {
 			return nil, err
 		}
-		groups = append(groups, &group)
+		groups = append(groups, converter.FromRepoGroup(&group))
 	}
 	return groups, nil
+}
+
+const updateQuery = `UPDATE groups SET name = $1 WHERE id = $2 RETURNING id, name`
+
+func (r *repository) Update(id string, info *model.GroupInfo) (*model.Group, error) {
+	row := r.db.QueryRow(updateQuery, info.Name, id)
+
+	var group repoModel.Group
+	if err := row.Scan(&group.ID, &group.Name); err != nil {
+		return nil, err
+	}
+
+	return converter.FromRepoGroup(&group), nil
 }

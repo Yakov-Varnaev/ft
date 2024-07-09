@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Yakov-Varnaev/ft/internal/model"
@@ -8,7 +9,22 @@ import (
 	webErrors "github.com/Yakov-Varnaev/ft/pkg/web/errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
+
+func getUUIDFromParam(c *gin.Context, key ...string) (string, error) {
+	paramKey := "id"
+	if len(key) > 0 {
+		paramKey = key[0]
+	}
+	id := c.Param(paramKey)
+	if _, err := uuid.Parse(id); err != nil {
+		return "", &webErrors.BadRequest{
+			Message: fmt.Sprintf("invalid uuid: %v", err),
+		}
+	}
+	return id, nil
+}
 
 func errorHandler(c *gin.Context) {
 	c.Next()
@@ -47,13 +63,8 @@ type groupHandler struct {
 	service service.GroupService
 }
 
-func (h *groupHandler) List(c *gin.Context) {
-	groups, err := h.service.List()
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	c.JSON(http.StatusOK, groups)
+func NewGroupHandler(service service.GroupService) *groupHandler {
+	return &groupHandler{service}
 }
 
 func (h *groupHandler) Create(c *gin.Context) {
@@ -67,6 +78,27 @@ func (h *groupHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, group)
 }
 
-func NewGroupHandler(service service.GroupService) *groupHandler {
-	return &groupHandler{service}
+func (h *groupHandler) List(c *gin.Context) {
+	groups, err := h.service.List()
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, groups)
+}
+
+func (h *groupHandler) Put(c *gin.Context) {
+	id, err := getUUIDFromParam(c)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	var data model.GroupInfo
+	c.ShouldBindJSON(&data)
+	updateGroup, err := h.service.Update(id, &data)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, updateGroup)
 }
