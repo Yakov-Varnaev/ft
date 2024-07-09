@@ -7,7 +7,7 @@ import (
 )
 
 type handlerProvider struct {
-	groupHandler *GroupHandler
+	groupHandler *groupHandler
 }
 
 func newServiceProvider(db *sqlx.DB) *handlerProvider {

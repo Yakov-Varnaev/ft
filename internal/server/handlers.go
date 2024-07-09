@@ -7,11 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GroupHandler struct {
+type groupHandler struct {
 	service service.GroupService
 }
 
-func (h *GroupHandler) List(c *gin.Context) {
+func (h *groupHandler) List(c *gin.Context) {
 	groups, err := h.service.List()
 	if err != nil {
 		c.AbortWithStatusJSON(
@@ -22,6 +22,6 @@ func (h *GroupHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, groups)
 }
 
-func NewGroupHandler(service service.GroupService) *GroupHandler {
-	return &GroupHandler{service}
+func NewGroupHandler(service service.GroupService) *groupHandler {
+	return &groupHandler{service}
 }
