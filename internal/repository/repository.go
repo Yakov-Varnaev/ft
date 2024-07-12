@@ -10,4 +10,5 @@ type GroupRepository interface {
 	List() ([]*model.Group, error)
 	Exists(filters utils.Filters) (bool, error)
 	Update(id string, info *model.GroupInfo) (*model.Group, error)
+	Delete(id string) error
 }

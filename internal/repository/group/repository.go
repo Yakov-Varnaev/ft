@@ -90,3 +90,13 @@ func (r *repository) Update(id string, info *model.GroupInfo) (*model.Group, err
 
 	return converter.FromRepoGroup(&group), nil
 }
+
+const deleteQuery = `DELETE FROM groups WHERE id = $1`
+
+func (r *repository) Delete(id string) error {
+	_, err := r.db.Exec(deleteQuery, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -30,6 +30,7 @@ func (s *Server) RegisterRoutes() {
 			groupGroup.GET("", s.h.groupHandler.List)
 			groupGroup.POST("", s.h.groupHandler.Create)
 			groupGroup.PUT("/:id", s.h.groupHandler.Put)
+			groupGroup.DELETE("/:id", s.h.groupHandler.Delete)
 		}
 	}
 }

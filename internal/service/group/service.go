@@ -67,3 +67,20 @@ func (s *service) Update(id string, info *model.GroupInfo) (*model.Group, error)
 	}
 	return updatedGroup, nil
 }
+
+func (s *service) Delete(id string) error {
+	exists, err := s.r.Exists(utils.Filters{"id": id})
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return &webErrors.NotFoundError{
+			Message: "Group with given id not found",
+		}
+	}
+	err = s.r.Delete(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
