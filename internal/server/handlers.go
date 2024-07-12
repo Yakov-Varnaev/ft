@@ -6,6 +6,7 @@ import (
 
 	"github.com/Yakov-Varnaev/ft/internal/model"
 	"github.com/Yakov-Varnaev/ft/internal/service"
+	"github.com/Yakov-Varnaev/ft/pkg/pagination"
 	webErrors "github.com/Yakov-Varnaev/ft/pkg/web/errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -79,7 +80,12 @@ func (h *groupHandler) Create(c *gin.Context) {
 }
 
 func (h *groupHandler) List(c *gin.Context) {
-	groups, err := h.service.List()
+	pg, err := pagination.NewFromContext(c)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	groups, err := h.service.List(pg)
 	if err != nil {
 		c.Error(err)
 		return

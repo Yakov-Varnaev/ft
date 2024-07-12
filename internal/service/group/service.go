@@ -4,6 +4,7 @@ import (
 	"github.com/Yakov-Varnaev/ft/internal/model"
 	"github.com/Yakov-Varnaev/ft/internal/repository"
 	def "github.com/Yakov-Varnaev/ft/internal/service"
+	"github.com/Yakov-Varnaev/ft/pkg/pagination"
 	"github.com/Yakov-Varnaev/ft/pkg/repository/utils"
 	webErrors "github.com/Yakov-Varnaev/ft/pkg/web/errors"
 	"github.com/go-playground/validator/v10"
@@ -43,12 +44,15 @@ func (s *service) Create(info *model.GroupInfo) (*model.Group, error) {
 	return group, nil
 }
 
-func (s *service) List() ([]*model.Group, error) {
-	groups, err := s.r.List()
+func (s *service) List(pg pagination.Pagination) (*pagination.Page[*model.Group], error) {
+	groups, total, err := s.r.List(pg)
 	if err != nil {
 		return nil, err
 	}
-	return groups, nil
+	return &pagination.Page[*model.Group]{
+		Total: total,
+		Data:  groups,
+	}, nil
 }
 
 func (s *service) Update(id string, info *model.GroupInfo) (*model.Group, error) {

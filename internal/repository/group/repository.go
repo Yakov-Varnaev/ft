@@ -8,6 +8,7 @@ import (
 	"github.com/Yakov-Varnaev/ft/internal/repository/group/converter"
 	repoModel "github.com/Yakov-Varnaev/ft/internal/repository/group/model"
 
+	pg "github.com/Yakov-Varnaev/ft/pkg/pagination"
 	"github.com/Yakov-Varnaev/ft/pkg/repository/utils"
 	"github.com/jmoiron/sqlx"
 )
@@ -51,31 +52,31 @@ func (r *repository) Create(info *model.GroupInfo) (*model.Group, error) {
 	return converter.FromRepoGroup(&group), nil
 }
 
-func (r *repository) List() ([]*model.Group, error) {
-	// TODO: add pagination
-	// err := r.db.QueryRowx(
-	// 	"SELECT COUNT(*) from groups",
-	// ).Scan(&count)
-	// if err != nil {
-	// 	return nil, 0, err
-	// }
+func (r *repository) List(p pg.Pagination) ([]*model.Group, int, error) {
+	var count int
+	err := r.db.QueryRowx(
+		"SELECT COUNT(*) from groups",
+	).Scan(&count)
+	if err != nil {
+		return nil, 0, err
+	}
 	rows, err := r.db.Queryx(
 		"SELECT id, name FROM groups LIMIT $1 OFFSET $2",
-		100, 0,
+		p.Limit, p.Offset,
 	)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	groups := make([]*model.Group, 0)
 	for rows.Next() {
 		var group repoModel.Group
 		err = rows.Scan(&group.ID, &group.Name)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		groups = append(groups, converter.FromRepoGroup(&group))
 	}
-	return groups, nil
+	return groups, count, nil
 }
 
 const updateQuery = `UPDATE groups SET name = $1 WHERE id = $2 RETURNING id, name`
