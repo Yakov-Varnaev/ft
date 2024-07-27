@@ -11,3 +11,10 @@ type GroupService interface {
 	Update(id string, info *model.GroupInfo) (*model.Group, error)
 	Delete(id string) error
 }
+
+type CategoryService interface {
+	Create(info *model.CategoryInfo) (*model.Category, error)
+	List(pagination.Pagination) (*pagination.Page[*model.Category], error)
+	// Update(id string, info *model.GroupInfo) (*model.Group, error)
+	Delete(id string) error
+}

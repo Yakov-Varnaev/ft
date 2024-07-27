@@ -70,7 +70,10 @@ func NewGroupHandler(service service.GroupService) *groupHandler {
 
 func (h *groupHandler) Create(c *gin.Context) {
 	var data model.GroupInfo
-	c.ShouldBindJSON(&data)
+	err := c.ShouldBindJSON(&data)
+	if err != nil {
+		c.Error(err)
+	}
 	group, err := h.service.Create(&data)
 	if err != nil {
 		c.Error(err)

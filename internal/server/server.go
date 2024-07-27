@@ -32,5 +32,11 @@ func (s *Server) RegisterRoutes() {
 			groupGroup.PUT("/:id", s.h.groupHandler.Put)
 			groupGroup.DELETE("/:id", s.h.groupHandler.Delete)
 		}
+		{
+			categoryGroup := v1.Group("/categories")
+			categoryGroup.GET("", s.h.categoryHandler.List)
+			categoryGroup.POST("", s.h.categoryHandler.Create)
+			categoryGroup.DELETE("/:id", s.h.categoryHandler.Delete)
+		}
 	}
 }
