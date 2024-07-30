@@ -52,7 +52,27 @@ func (s *service) List(p pg.Pagination) (*pg.Page[*model.Category], error) {
 		Total: total,
 		Data:  groups,
 	}, nil
+}
 
+func (s *service) Update(id string, info *model.CategoryInfo) (*model.Category, error) {
+	exists, err := s.r.Exists(utils.Filters{"id": id})
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, &webErrors.NotFoundError{
+			Message: "Category with given id not found",
+		}
+	}
+
+	if err := s.v.Struct(info); err != nil {
+		return nil, &webErrors.BadRequest{Message: err.Error()}
+	}
+	updatedCategory, err := s.r.Update(id, info)
+	if err != nil {
+		return nil, err
+	}
+	return updatedCategory, nil
 }
 
 func (s *service) Delete(id string) error {
@@ -62,7 +82,7 @@ func (s *service) Delete(id string) error {
 	}
 	if !exists {
 		return &webErrors.NotFoundError{
-			Message: "Group with given id not found",
+			Message: "Category with given id not found",
 		}
 	}
 	err = s.r.Delete(id)

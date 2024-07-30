@@ -41,7 +41,6 @@ func (r *repository) Exists(filters utils.Filters) (bool, error) {
 const createQuery = `INSERT INTO categories (name, group_id) VALUES ($1, $2) RETURNING id`
 
 func (r *repository) Create(info *model.CategoryInfo) (*model.Category, error) {
-
 	data := converter.ToRepoCategoryInfo(info)
 	var id string
 	// TODO: May be it worth to create more difficult query with join and returning
@@ -70,7 +69,6 @@ func (r *repository) Create(info *model.CategoryInfo) (*model.Category, error) {
 }
 
 func (r *repository) List(p pg.Pagination) ([]*model.Category, int, error) {
-
 	var count int
 	err := r.db.QueryRowx(
 		"SELECT COUNT(*) FROM categories",
@@ -98,6 +96,37 @@ func (r *repository) List(p pg.Pagination) ([]*model.Category, int, error) {
 		categories = append(categories, converter.FromRepoCategory(&c))
 	}
 	return categories, count, nil
+}
+
+const updateQuery = `
+	UPDATE categories SET name = $1, group_id = $2 WHERE id = $3 RETURNING id
+`
+
+func (r *repository) Update(id string, info *model.CategoryInfo) (*model.Category, error) {
+	data := converter.ToRepoCategoryInfo(info)
+	err := r.db.QueryRowx(
+		updateQuery, data.Name, data.GroupID, id,
+	).Scan(&id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var category repoModel.Category
+
+	err = r.db.QueryRowx(
+		`
+		SELECT categories.id, categories.name, groups.id, groups.name
+		FROM categories
+		JOIN groups on categories.group_id = groups.id
+		WHERE categories.id = $1
+		`, id,
+	).Scan(&category.ID, &category.Name, &category.Group.ID, &category.Group.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return converter.FromRepoCategory(&category), nil
 }
 
 const deleteQuery = `DELETE FROM categories WHERE id = $1`

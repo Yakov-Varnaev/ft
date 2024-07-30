@@ -29,13 +29,14 @@ func (s *Server) RegisterRoutes() {
 			groupGroup := v1.Group("/groups")
 			groupGroup.GET("", s.h.groupHandler.List)
 			groupGroup.POST("", s.h.groupHandler.Create)
-			groupGroup.PUT("/:id", s.h.groupHandler.Put)
+			groupGroup.PUT("/:id", s.h.groupHandler.Update)
 			groupGroup.DELETE("/:id", s.h.groupHandler.Delete)
 		}
 		{
 			categoryGroup := v1.Group("/categories")
 			categoryGroup.GET("", s.h.categoryHandler.List)
 			categoryGroup.POST("", s.h.categoryHandler.Create)
+			categoryGroup.PUT("/:id", s.h.categoryHandler.Update)
 			categoryGroup.DELETE("/:id", s.h.categoryHandler.Delete)
 		}
 	}

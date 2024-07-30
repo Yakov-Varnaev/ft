@@ -18,6 +18,6 @@ type CategoryRepository interface {
 	Create(info *model.CategoryInfo) (*model.Category, error)
 	List(pg pg.Pagination) ([]*model.Category, int, error)
 	Exists(filters utils.Filters) (bool, error)
-	// Update(id string, info *model.CategoryInfo) (*model.Category, error)
+	Update(id string, info *model.CategoryInfo) (*model.Category, error)
 	Delete(id string) error
 }

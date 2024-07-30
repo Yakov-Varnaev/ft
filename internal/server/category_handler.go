@@ -46,6 +46,22 @@ func (h *categoryHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, categories)
 }
 
+func (h *categoryHandler) Update(c *gin.Context) {
+	id, err := getUUIDFromParam(c)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	var data model.CategoryInfo
+	c.ShouldBindJSON(&data)
+	updateGroup, err := h.service.Update(id, &data)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, updateGroup)
+}
+
 func (h *categoryHandler) Delete(c *gin.Context) {
 	id, err := getUUIDFromParam(c)
 	if err != nil {

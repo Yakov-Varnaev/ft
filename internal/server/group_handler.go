@@ -96,7 +96,7 @@ func (h *groupHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, groups)
 }
 
-func (h *groupHandler) Put(c *gin.Context) {
+func (h *groupHandler) Update(c *gin.Context) {
 	id, err := getUUIDFromParam(c)
 	if err != nil {
 		c.Error(err)
