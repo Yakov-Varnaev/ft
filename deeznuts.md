@@ -1,5 +1,0 @@
-# handler
-
-# service
-
-# repository
