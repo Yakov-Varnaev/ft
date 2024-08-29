@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS categories (
 -- Create table for Spendings
 CREATE TABLE IF NOT EXISTS spendings (
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
-    amount DECIMAL(65, 2) NOT NULL,
+    amount INT NOT NULL,
     date TIMESTAMP NOT NULL,
     comment TEXT NOT NULL,
     category_id UUID NOT NULL,

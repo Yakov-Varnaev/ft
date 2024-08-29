@@ -18,3 +18,10 @@ type CategoryService interface {
 	Update(id string, info *model.CategoryInfo) (*model.Category, error)
 	Delete(id string) error
 }
+
+type SpendingsService interface {
+	Create(info *model.SpendingsInfo) (*model.Spendings, error)
+	List(pagination.Pagination) (*pagination.Page[*model.Spendings], error)
+	// Update(id string, info *model.SpendingsInfo) (*model.Spendings, error)
+	// Delete(id string) error
+}

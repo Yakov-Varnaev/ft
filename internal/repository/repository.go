@@ -21,3 +21,11 @@ type CategoryRepository interface {
 	Update(id string, info *model.CategoryInfo) (*model.Category, error)
 	Delete(id string) error
 }
+
+type SpendingsRepository interface {
+	Create(info *model.SpendingsInfo) (*model.Spendings, error)
+	List(pg pg.Pagination) ([]*model.Spendings, int, error)
+	Exists(filters utils.Filters) (bool, error)
+	// Update(id string, info *model.SpendingsInfo) (*model.Spendings, error)
+	// Delete(id string) error
+}
