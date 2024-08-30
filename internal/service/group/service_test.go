@@ -9,7 +9,8 @@ import (
 	"github.com/Yakov-Varnaev/ft/internal/config"
 	"github.com/Yakov-Varnaev/ft/internal/database"
 	"github.com/Yakov-Varnaev/ft/internal/model"
-	repository "github.com/Yakov-Varnaev/ft/internal/repository/group"
+	groupRepo "github.com/Yakov-Varnaev/ft/internal/repository/group"
+	"github.com/Yakov-Varnaev/ft/pkg/pagination"
 )
 
 // test create valid data
@@ -47,16 +48,18 @@ func TestMain(t *testing.M) {
 }
 
 func Test_service_Create_invalid_data(t *testing.T) {
-	fmt.Println("invalid data success")
 	cfg, err := config.New()
 	if err != nil {
 		t.Fatal(err)
 	}
 	cfg.DB.Database = "test_group"
 	db := database.New(cfg.DB)
-	defer db.Close()
+	defer func() {
+		db.MustExec("TRUNCATE TABLE groups CASCADE;")
+		db.Close()
+	}()
 
-	repo := repository.New(db)
+	repo := groupRepo.New(db)
 	s := New(repo)
 
 	_, err = repo.Create(&model.GroupInfo{Name: "Test Group"})
@@ -109,6 +112,67 @@ func Test_service_Create_invalid_data(t *testing.T) {
 			}
 			if cnt > 1 {
 				t.Errorf("Group was created event though error was returned")
+			}
+		})
+	}
+}
+
+func Test_service_List(t *testing.T) {
+	cfg, err := config.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg.DB.Database = "test_group"
+	db := database.New(cfg.DB)
+	defer func() {
+		db.MustExec("TRUNCATE TABLE groups CASCADE;")
+		db.Close()
+	}()
+
+	repo := groupRepo.New(db)
+	s := New(repo)
+
+	groups := make([]*model.Group, 0)
+	for i := range 3 {
+		name := fmt.Sprintf("Group %d", i)
+		g, err := s.Create(&model.GroupInfo{Name: name})
+		if err != nil {
+			t.Fatal(err)
+		}
+		groups = append(groups, g)
+	}
+
+	type args struct {
+		pg pagination.Pagination
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *pagination.Page[*model.Group]
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "first page all posts",
+			args: args{
+				pagination.Pagination{Limit: 10},
+			},
+			want: &pagination.Page[*model.Group]{
+				Total: 3,
+				Data:  groups,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := s.List(tt.args.pg)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("service.List() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("service.List() = %v, want %v", got, tt.want)
 			}
 		})
 	}
