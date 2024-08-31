@@ -11,6 +11,7 @@ import (
 	"github.com/Yakov-Varnaev/ft/internal/model"
 	groupRepo "github.com/Yakov-Varnaev/ft/internal/repository/group"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
+	"github.com/Yakov-Varnaev/ft/pkg/repository/utils"
 )
 
 func TestMain(t *testing.M) {
@@ -191,5 +192,39 @@ func Test_service_List(t *testing.T) {
 				t.Errorf("service.List() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func Test_service_Delete(t *testing.T) {
+	cfg, err := config.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg.DB.Database = "test_group"
+	db := database.New(cfg.DB)
+	defer func() {
+		db.MustExec("TRUNCATE TABLE groups CASCADE;")
+		db.Close()
+	}()
+
+	repo := groupRepo.New(db)
+	s := New(repo)
+
+	group, err := repo.Create(&model.GroupInfo{Name: "Test Group"})
+	if err != nil {
+		t.Fatalf("Cannot create group: %v", err)
+	}
+
+	err = s.Delete(group.ID)
+	if err != nil {
+		t.Fatalf("Cannot delete group: %v", err)
+	}
+
+	exists, err := repo.Exists(utils.Filters{"name": group.Name})
+	if err != nil {
+		t.Fatalf("Cannot check if post exists: %v", err)
+	}
+	if exists {
+		t.Fatalf("Group exists after deletion.")
 	}
 }

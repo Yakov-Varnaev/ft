@@ -61,3 +61,15 @@ func (h *GroupHandler) List(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, groups)
 }
+func (h *GroupHandler) Delete(c *gin.Context) {
+	id, err := getUUIDFromParam(c, "id")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	if err = h.service.Delete(id); err != nil {
+		c.Error(err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}

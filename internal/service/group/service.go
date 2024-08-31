@@ -1,11 +1,14 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/Yakov-Varnaev/ft/internal/model"
 	"github.com/Yakov-Varnaev/ft/internal/repository"
 	def "github.com/Yakov-Varnaev/ft/internal/service"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
 	"github.com/Yakov-Varnaev/ft/pkg/repository/utils"
+	webErrors "github.com/Yakov-Varnaev/ft/pkg/web/errors"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -52,4 +55,21 @@ func (s *service) List(pg pagination.Pagination) (*pagination.Page[*model.Group]
 		Total: total,
 		Data:  groups,
 	}, nil
+}
+
+func (s *service) Delete(id string) error {
+	exists, err := s.r.Exists(utils.Filters{"id": id})
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return &webErrors.NotFoundError{
+			Message: fmt.Sprintf("Groups with id \"%s\" was not found", id),
+		}
+	}
+	err = s.r.Delete(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

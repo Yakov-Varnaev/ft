@@ -46,6 +46,7 @@ func (s *Server) RegisterRoutes() {
 			groupGroup := v1.Group("/groups")
 			groupGroup.GET("", s.h.groupHandler.List)
 			groupGroup.POST("", s.h.groupHandler.Create)
+			groupGroup.DELETE("/:id", s.h.groupHandler.Delete)
 		}
 	}
 }
