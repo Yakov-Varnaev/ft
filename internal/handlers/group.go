@@ -1,30 +1,14 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/Yakov-Varnaev/ft/internal/model"
 	"github.com/Yakov-Varnaev/ft/internal/service"
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
-	webErrors "github.com/Yakov-Varnaev/ft/pkg/web/errors"
+	"github.com/Yakov-Varnaev/ft/pkg/web/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
-
-func getUUIDFromParam(c *gin.Context, key ...string) (string, error) {
-	paramKey := "id"
-	if len(key) > 0 {
-		paramKey = key[0]
-	}
-	id := c.Param(paramKey)
-	if _, err := uuid.Parse(id); err != nil {
-		return "", &webErrors.BadRequest{
-			Message: fmt.Sprintf("invalid uuid: %v", err),
-		}
-	}
-	return id, nil
-}
 
 type GroupHandler struct {
 	service service.GroupService
@@ -62,7 +46,7 @@ func (h *GroupHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, groups)
 }
 func (h *GroupHandler) Delete(c *gin.Context) {
-	id, err := getUUIDFromParam(c, "id")
+	id, err := utils.GetUUIDFromParam(c, "id")
 	if err != nil {
 		c.Error(err)
 		return
