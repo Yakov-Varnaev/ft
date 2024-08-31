@@ -10,15 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type categoryHandler struct {
+type CategoryHandler struct {
 	service service.CategoryService
 }
 
-func NewCategoryHandler(service service.CategoryService) *categoryHandler {
-	return &categoryHandler{service}
+func NewCategoryHandler(service service.CategoryService) *CategoryHandler {
+	return &CategoryHandler{service}
 }
 
-func (h *categoryHandler) Create(c *gin.Context) {
+func (h *CategoryHandler) Create(c *gin.Context) {
 	var data model.CategoryInfo
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
@@ -33,7 +33,7 @@ func (h *categoryHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, category)
 }
 
-func (h *categoryHandler) List(c *gin.Context) {
+func (h *CategoryHandler) List(c *gin.Context) {
 	pg, err := pagination.NewFromContext(c)
 	if err != nil {
 		c.Error(err)
@@ -47,7 +47,7 @@ func (h *categoryHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, categories)
 }
 
-func (h *categoryHandler) Update(c *gin.Context) {
+func (h *CategoryHandler) Update(c *gin.Context) {
 	id, err := utils.GetUUIDFromParam(c)
 	if err != nil {
 		c.Error(err)
@@ -63,7 +63,7 @@ func (h *categoryHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, updateGroup)
 }
 
-func (h *categoryHandler) Delete(c *gin.Context) {
+func (h *CategoryHandler) Delete(c *gin.Context) {
 	id, err := utils.GetUUIDFromParam(c)
 	if err != nil {
 		c.Error(err)
