@@ -13,10 +13,6 @@ import (
 	"github.com/Yakov-Varnaev/ft/pkg/pagination"
 )
 
-// test create valid data
-// test create invalid data(duplicating name)
-// test list pagination
-
 func TestMain(t *testing.M) {
 	cfg, err := config.New()
 	if err != nil {
