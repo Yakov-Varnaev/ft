@@ -163,6 +163,26 @@ func Test_service_List(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "limit 1 offset 0",
+			args: args{
+				pagination.Pagination{Limit: 1},
+			},
+			want: &pagination.Page[*model.Group]{
+				Total: 3,
+				Data:  groups[:1],
+			},
+		},
+		{
+			name: "limit 1 offset 1",
+			args: args{
+				pagination.Pagination{Limit: 1, Offset: 1},
+			},
+			want: &pagination.Page[*model.Group]{
+				Total: 3,
+				Data:  groups[1:2],
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
